@@ -3,6 +3,8 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const room = document.getElementById("room");
 
+const roomList = document.getElementById("room_list");
+
 room.hidden = true;
 
 let roomName;
@@ -43,12 +45,28 @@ room.querySelector("form").addEventListener("submit", (event) => {
   });
 });
 
-socket.on("welcome", (user) => {
+socket.on("welcome", (user, count) => {
   addMessage(user + "님이 입장했습니다.");
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${count})`;
 });
 
-socket.on("bye", (user) => {
+socket.on("bye", (user, count) => {
   addMessage(user + "님이 퇴장했습니다.");
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${count})`;
 });
 
 socket.on("message", addMessage);
+
+socket.on("room_change", (rooms) => {
+  roomList.innerHTML = "";
+  if (rooms.length === 0) {
+    return;
+  }
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.appendChild(li);
+  });
+});
